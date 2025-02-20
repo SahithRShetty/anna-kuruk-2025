@@ -5,7 +5,6 @@ import json
 
 from dotenv import load_dotenv, find_dotenv
 import os
-from wolframalpha import Client
 
 def load_env():
     _ = load_dotenv(find_dotenv())
@@ -27,7 +26,7 @@ def llama32(messages, model_size=11):
   headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {os.getenv('TOGETHER_API_KEY')}"
+    "Authorization": "Bearer <bearer-token>"
   }
   res = json.loads(requests.request("POST", url, headers=headers, data=json.dumps(payload)).content)
 
@@ -35,65 +34,6 @@ def llama32(messages, model_size=11):
     raise Exception(res['error'])
 
   return res['choices'][0]['message']['content']
-
-def get_wolfram_alpha_api_key():
-    load_env()
-    wolfram_alpha_api_key = os.getenv("WOLFRAM_ALPHA_KEY")
-    return wolfram_alpha_api_key
-
-def get_tavily_api_key():
-    load_env()
-    tavily_api_key = os.getenv("TAVILY_API_KEY")
-    return tavily_api_key
-
-
-def llama31(prompt_or_messages, model_size=8, temperature=0, raw=False, debug=False):
-    model = f"meta-llama/Meta-Llama-3.1-{model_size}B-Instruct-Turbo"
-    if isinstance(prompt_or_messages, str):
-        prompt = prompt_or_messages
-        url = f"{os.getenv('DLAI_TOGETHER_API_BASE', 'https://api.together.xyz')}/v1/completions"
-        payload = {
-            "model": model,
-            "temperature": temperature,
-            "prompt": prompt
-        }
-    else:
-        messages = prompt_or_messages
-        url = f"{os.getenv('DLAI_TOGETHER_API_BASE', 'https://api.together.xyz')}/v1/chat/completions"
-        payload = {
-            "model": model,
-            "temperature": temperature,
-            "messages": messages
-        }
-
-    if debug:
-        print(payload)
-
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {os.getenv('TOGETHER_API_KEY')}"
-    }
-
-    try:
-        response = requests.post(
-            url, headers=headers, data=json.dumps(payload)
-        )
-        response.raise_for_status()  # Raises HTTPError for bad responses
-        res = response.json()
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Request failed: {e}")
-
-    if 'error' in res:
-        raise Exception(f"API Error: {res['error']}")
-
-    if raw:
-        return res
-
-    if isinstance(prompt_or_messages, str):
-        return res['choices'][0].get('text', '')
-    else:
-        return res['choices'][0].get('message', {}).get('content', '')
 
 import os
 import requests
@@ -177,21 +117,4 @@ def cprint(response):
 import nest_asyncio
 nest_asyncio.apply()
 
-def wolfram_alpha(query: str) -> str:
-    WOLFRAM_ALPHA_KEY = get_wolfram_alpha_api_key()
-    client = Client(WOLFRAM_ALPHA_KEY)
-    result = client.query(query)
 
-    results = []
-    for pod in result.pods:
-        if pod["@title"] == "Result" or pod["@title"] == "Results":
-          for sub in pod.subpods:
-            results.append(sub.plaintext)
-
-    return '\n'.join(results)
-
-
-
-def get_boiling_point(liquid_name, celsius):
-  # function body
-  return []
