@@ -26,7 +26,7 @@ def llama32(messages, model_size=11):
   headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
-    "Authorization": "Bearer tgp_v1_QmX79vqz1k5Mij5bdyy-FsWeOS5UaRLNaZMCIbGZY4w"
+    "Authorization": "Bearer <bearer-token>"
   }
   res = json.loads(requests.request("POST", url, headers=headers, data=json.dumps(payload)).content)
 
